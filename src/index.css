@@ -3,3 +3,7 @@ body {
   padding: 0;
   font-family: sans-serif;
 }
+
+article:first-child {
+	margin-top: 6rem;
+}
