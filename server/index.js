@@ -3,6 +3,21 @@
     let { buildSchema } = require("graphql");
     let cors = require("cors");
 
+    let Pusher = require("pusher");
+    let bodyParser = require("body-parser");
+    let Multipart = require("connect-multiparty");
+
+    let pusher = new Pusher({
+                    appId: '532934',
+                    key: 'c89c7d0f075322c08deb',
+                    secret: 'e096e05bdd3b4cde6f45',
+                    cluster: 'us2',
+                    encrypted: true
+                  });
+    let multipartMiddleware = new Multipart();
+
+
+
       let schema = buildSchema(`
       type User {
         id : String!
@@ -26,14 +41,14 @@
 let userslist = {
   a: {
     id: "a",
-    nickname: "Chris",
-    avatar: "https://www.laravelnigeria.com/img/chris.jpg"
+    nickname: "Deivbid",
+    avatar: "https://scontent-mia3-2.cdninstagram.com/vp/eea88e8d0f70e5ef2157d9d71aad194c/5BA38EEB/t51.2885-19/s150x150/22157587_510506482616537_5881063010054701056_n.jpg"
   },
   b: {
     id: "b",
-    nickname: "OG",
+    nickname: "crismarycastellanos",
     avatar:
-      "http://res.cloudinary.com/og-tech/image/upload/q_40/v1506850315/contact_tzltnn.jpg"
+      "https://scontent-mia3-2.cdninstagram.com/vp/b446c44706ee88ad65a75425cec1f6f0/5B8F15B8/t51.2885-19/s150x150/18723230_1712102959082450_8351748977212784640_a.jpg"
   }
 };
 
@@ -42,27 +57,27 @@ let userslist = {
         a: {
           id: "a",
           user: userslist["a"],
-          caption: "Moving the community!",
-          image: "https://pbs.twimg.com/media/DOXI0IEXkAAkokm.jpg"
+          caption: "Yoka",
+          image: "https://i.imgur.com/7KWMenL.jpg"
         },
         b: {
           id: "b",
           user: userslist["a"],
-          caption: "Angular Book :)",
+          caption: "Oro pls",
           image:
-            "https://cdn-images-1.medium.com/max/1000/1*ltLfTw87lE-Dqt-BKNdj1A.jpeg"
+            "https://i.imgur.com/MBPWZUw.jpg"
         },
         c: {
           id: "c",
           user: userslist["a"],
-          caption: "Me at Frontstack.io",
-          image: "https://pbs.twimg.com/media/DNNhrp6W0AAbk7Y.jpg:large"
+          caption: "@crismarycastellanos Regalame una Pls",
+          image: "https://vangogh.teespring.com/v3/image/dFJEFk0QNNTKVaEuz6fZ_gH5NX8/480/560.jpg"
         },
         d: {
           id: "d",
-          user: userslist["a"],
-          caption: "Moving the community!",
-          image: "https://pbs.twimg.com/media/DOXI0IEXkAAkokm.jpg"
+          user: userslist["b"],
+          caption: "Ready to the party",
+          image: "https://i.imgur.com/B83JO49.jpg"
         }
       }
     };
@@ -91,6 +106,27 @@ let userslist = {
         graphiql: true
       })
     );
+
+    // trigger add a new post 
+    app.post('/newpost', multipartMiddleware, (req,res) => {
+      // create a sample post
+      console.log(req.body.name)
+      let post = {
+        user : {
+          nickname : req.body.name,
+          avatar : req.body.avatar
+        },
+        image : req.body.image,
+        caption : req.body.caption
+      }
+
+      // trigger pusher event 
+      pusher.trigger("posts-channel", "new-post", { 
+        post 
+      });
+
+      return res.json({status : "Post created"});
+    });
 
 
 app.listen(4000);
